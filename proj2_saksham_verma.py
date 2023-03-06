@@ -11,7 +11,9 @@ import time
 from sys import exit
 
 #%%
-# Making obsticle map space for point p, clearence 5
+## Making obsticle map space for point p, clearence 5
+
+# Rectangles
 def obs1(p):
     if p[0] > (100-5) and p[0]<(150+5) and p[1]<(100+5):
         return False
@@ -22,7 +24,7 @@ def obs2(p):
         return False
     else:
         return True  
-
+# Hexagon
 P_act = [[235,162.5],[300,200],[365,162.5],[365,87.5],[300,50],[235,87.5]]
 P     = [[230.7,165],[300,205],[369.3,165],[369.3,85],[300,45],[230.7,85]]
 L1 = np.polyfit([P[0][0],P[1][0]] , [P[0][1],P[1][1]] , 1)
@@ -40,6 +42,7 @@ def obs3(p):
     else:
         return True
 
+# triangle
 Q_act = [[460,225],[510,125],[460,25]]
 Q     = [[455,232],[517,125],[455,18]]
 Q1 = np.polyfit([Q[0][0],Q[1][0]] , [Q[0][1],Q[1][1]] , 1)
@@ -53,6 +56,8 @@ def obs4(p):
     else:
         return True
 #%%
+
+# Checker if a node falls in the obstacle space
 def checkFeasibility(node):
     if obs1(node) and obs2(node) and obs3(node) and obs4(node):
         if node[0]>=0 and node[0]<=600 and node[1]>=0 and node[1]<=250:
@@ -65,6 +70,7 @@ def checkFeasibility(node):
 shifter = [[-1,1],[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0]]
 shiftCost = [1.4, 1, 1.4, 1, 1.4, 1, 1.4, 1]
 
+# Given a node and its current c2c, returns the child nodes
 def shift(node,cost):
     for i in range(len(shifter)):
         childNode = (node[0]+shifter[i][0], node[1]+shifter[i][1])
@@ -72,8 +78,11 @@ def shift(node,cost):
             yield childNode, cost+shiftCost[i]
 
 #%%
+
+# main algorithm
 def Djk(startState,goalState):
     
+    # Cheking time
     startTime = time.time()
     
     if not checkFeasibility(startState) or not checkFeasibility(goalState):
@@ -86,17 +95,20 @@ def Djk(startState,goalState):
     child = 1
     
     while True:
+        # popping first node
         parent=list(openNodes.keys())[0]
         closedNodes[parent] = openNodes[parent]
         
         if parent==goalState:
             print("Goal Found after",len(closedNodes),"nodes in ",time.time()-startTime, " seconds!")
             break
-            
+        
+        # If node in open nodes, update cost ........
         for node,cost in shift(parent,openNodes[parent][0]):
             if node in openNodes:
                 openNodes[node] = (min(cost,openNodes[node][0]),openNodes[node][1],openNodes[node][2])
                 pass
+            # ...... and if not, add child
             else:
                 if node not in closedNodes and node != None:
                     openNodes[node] = (cost,openNodes[parent][2],child)
@@ -104,9 +116,10 @@ def Djk(startState,goalState):
        
         del openNodes[parent]
         
+        # Sort the dict before popping next
         openNodes = dict(sorted(openNodes.items(), key=lambda x:x[1]))
     
-    
+    # backtracking
     backTrack = [node,parent]
     child = closedNodes[parent][1]
     while child >0:
@@ -122,6 +135,8 @@ def Djk(startState,goalState):
     
     return backTrack,closedNodes,openNodes
 #%%
+# main code
+
 start = input("Enter start X and Y coordinates separated by comma :")
 goal  = input("Enter goal X and Y coordinates separated by comma :")
 
