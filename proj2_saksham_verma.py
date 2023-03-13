@@ -60,7 +60,7 @@ def obs4(p):
 # Checker if a node falls in the obstacle space
 def checkFeasibility(node):
     if obs1(node) and obs2(node) and obs3(node) and obs4(node):
-        if node[0]>=0 and node[0]<=600 and node[1]>=0 and node[1]<=250:
+        if node[0]>=5 and node[0]<=595 and node[1]>=5 and node[1]<=245:
             return True
         else:
             return False
